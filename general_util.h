@@ -20,6 +20,11 @@ class GeneralUtil {
     arr[arr_size] = value;
     return arr;
   }
+
+  static int Clamp(int val, int low, int high) {
+    return min(max(val, low), high);
+  }
+  
 };
 
 #endif
