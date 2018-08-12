@@ -9,6 +9,16 @@
 
 namespace jarduino {
 
+template <typename T>
+T min(const T& a, const T& b) {
+  return (a < b) ? a : b;
+}
+
+template <typename T>
+T max(const T& a, const T& b) {
+  return (a > b) ? a : b;
+}
+
 float ToDegrees(float radians);
 
 float ToRadians(float degrees);
@@ -92,6 +102,7 @@ typedef Vector Velocity;
 class MobileThing {
  public:
   MobileThing() {}
+
   MobileThing(const Velocity& velocity, const PointF& pos) { velocity_ = velocity; pos_ = pos; }
 
   // Distance per time.  Agnostic to actual units of distance and time. 
@@ -111,6 +122,41 @@ class MobileThing {
  private:
   jarduino::Velocity velocity_;
   PointF pos_;
+};
+
+template <typename T>
+class Box {
+ public:
+   Box<T>() {}
+
+   Box<T>(const Point<T>& p1, const Point<T>& p2) {Set(p1, p2); }
+
+   Point<T> LowerLeft() const {
+     float lowX = min(p1_.X(), p2_.X());
+     float lowY = min(p1_.Y(), p2_.Y());
+     return Point<T>(lowX, lowY);
+   }
+
+   Point<T> UpperRight() const {
+     float highX = max(p1_.X(), p2_.X());
+     float highY = max(p1_.Y(), p2_.Y());
+     return Point<T>(highX, highY);
+   }
+
+   void Set(const Point<T>& p1, const Point<T>& p2) {
+     p1_ = p1;
+     p2_ = p2;
+   }
+
+   bool operator==(const Box<T>& other) const {
+     LowerLeft() == other.LowerLeft() && UpperRight() == other.UpperRight();
+   }
+
+   bool operator!=(const Box<T>& other) const { return !(*this == other); }
+
+ private:
+   Point<T> p1_;
+   Point<T> p2_;
 };
 
 }  // namespace jarduino

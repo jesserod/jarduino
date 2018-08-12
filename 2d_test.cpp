@@ -194,6 +194,28 @@ void TestMobileThing() {
   }
 }
 
+void TestBox() {
+  {
+    Box<float> b;
+    EXPECT_OBJECT_EQ(b, Box<float>(PointF(0, 0), PointF(0, 0)));
+  }
+  {
+    Box<float> b(PointF(1,2), PointF(3, 4));
+    EXPECT_OBJECT_EQ(b, Box<float>(PointF(1, 2), PointF(3, 4)));
+    EXPECT_OBJECT_EQ(b, Box<float>(PointF(3, 4), PointF(1, 2)));
+  }
+  {
+    Box<float> b(PointF(-1,-2), PointF(-3, 4));
+    EXPECT_OBJECT_EQ(b, Box<float>(PointF(-1, -2), PointF(-3, 4)));
+    EXPECT_OBJECT_EQ(b, Box<float>(PointF(-3, 4), PointF(-1, -2)));
+  }
+  {
+    Box<float> b(PointF(-1,-2), PointF(-3, 4));
+    EXPECT_OBJECT_EQ(b.LowerLeft(), PointF(-3, -2));
+    EXPECT_OBJECT_EQ(b.UpperRight(), PointF(-1, 4));
+  }
+}
+
 }  // namespace jarduino
 
 
@@ -210,6 +232,7 @@ int main ()
     TEST(TestVectorSetMagnitude);
     TEST(TestPoint);
     TEST(TestMobileThing);
+    TEST(TestBox);
   }
 
   std::cout << "Tests passed!" << std::endl;
