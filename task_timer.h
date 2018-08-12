@@ -20,6 +20,10 @@ class TaskTimer {
     }
     return false;
   }
+
+  long RemainingMillis(int task_id) {
+    return timers_.GetWithDefault(task_id, 0);
+  }
   
   void SetTimer(int task_id, long millis) {
     timers_.Insert(task_id, millis);
