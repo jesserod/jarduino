@@ -40,7 +40,7 @@ void TestVectorBasic() {
     EXPECT_EQ(v.X(), 1);
     v.SetY(2);
     EXPECT_EQ(v.Y(), 2);
-    v.Update(3, 4.5);
+    v.Set(3, 4.5);
     EXPECT_EQ(v.X(), 3);
     EXPECT_FLOAT_EQ(v.Y(), 4.5);
   }
@@ -103,44 +103,82 @@ void TestVectorSetAngleRadians() {
   }
 }
 
-void TestVectorLength() {
-  EXPECT_FLOAT_EQ(Vector(0, 0).Length(), 0);
-  EXPECT_FLOAT_EQ(Vector(1, 0).Length(), 1);
-  EXPECT_FLOAT_EQ(Vector(0, 1).Length(), 1);
-  EXPECT_FLOAT_EQ(Vector(0, -1).Length(), 1);
-  EXPECT_FLOAT_EQ(Vector(-1, 0).Length(), 1);
-  EXPECT_FLOAT_EQ(Vector(-2, 0).Length(), 2);
-  EXPECT_FLOAT_EQ(Vector(-1, -1).Length(), sqrt(2));
-  EXPECT_FLOAT_EQ(Vector(-1, 2).Length(), sqrt(1+4));
+void TestVectorMagnitude() {
+  EXPECT_FLOAT_EQ(Vector(0, 0).Magnitude(), 0);
+  EXPECT_FLOAT_EQ(Vector(1, 0).Magnitude(), 1);
+  EXPECT_FLOAT_EQ(Vector(0, 1).Magnitude(), 1);
+  EXPECT_FLOAT_EQ(Vector(0, -1).Magnitude(), 1);
+  EXPECT_FLOAT_EQ(Vector(-1, 0).Magnitude(), 1);
+  EXPECT_FLOAT_EQ(Vector(-2, 0).Magnitude(), 2);
+  EXPECT_FLOAT_EQ(Vector(-1, -1).Magnitude(), sqrt(2));
+  EXPECT_FLOAT_EQ(Vector(-1, 2).Magnitude(), sqrt(1+4));
 }
 
-void TestVectorSetLength() {
+void TestVectorSetMagnitude() {
   {
     Vector v(1, 0);
-    v.SetLength(1.5);
-    EXPECT_FLOAT_EQ(v.Length(), 1.5);
+    v.SetMagnitude(1.5);
+    EXPECT_FLOAT_EQ(v.Magnitude(), 1.5);
     EXPECT_FLOAT_EQ(v.X(), 1.5);
     EXPECT_FLOAT_EQ(v.Y(), 0);
   }
   {
     Vector v(-1, 0);
-    v.SetLength(1.5);
-    EXPECT_FLOAT_EQ(v.Length(), 1.5);
+    v.SetMagnitude(1.5);
+    EXPECT_FLOAT_EQ(v.Magnitude(), 1.5);
     EXPECT_FLOAT_EQ(v.X(), -1.5);
     EXPECT_FLOAT_EQ(v.Y(), 0);
   }
   {
     Vector v(-1, -1);
-    v.SetLength(0.1);
+    v.SetMagnitude(0.1);
     EXPECT_FLOAT_EQ(v.X(), -0.1 / sqrt(2));
     EXPECT_FLOAT_EQ(v.Y(), -0.1 / sqrt(2));
   }
   {
     Vector v(1, -2);
-    v.SetLength(2);
-    EXPECT_FLOAT_EQ(v.Length(), 2);
+    v.SetMagnitude(2);
+    EXPECT_FLOAT_EQ(v.Magnitude(), 2);
     EXPECT_FLOAT_EQ(v.X(), 0.894427);
     EXPECT_FLOAT_EQ(v.Y(), -1.78885);
+  }
+}
+
+void TestPoint() {
+  {
+    Point<int> p;
+    EXPECT_EQ(p.X(), 0);
+    EXPECT_EQ(p.Y(), 0);
+  }
+  {
+    Point<int> p(1, 2);
+    EXPECT_EQ(p.X(), 1);
+    EXPECT_EQ(p.Y(), 2);
+  }
+  {
+    Point<int> p;
+    p.SetX(10);
+    EXPECT_EQ(p.X(), 10);
+    EXPECT_EQ(p.Y(), 0);
+  }
+  {
+    Point<int> p;
+    p.SetY(10);
+    EXPECT_EQ(p.X(), 0);
+    EXPECT_EQ(p.Y(), 10);
+  }
+  {
+    Point<float> p(1.5, -2);
+    EXPECT_FLOAT_EQ(p.X(), 1.5);
+    EXPECT_FLOAT_EQ(p.Y(), -2);
+  }
+}
+
+void TestMovingThing() {
+  {
+    MovingThing m(Velocity(1,2), PointF(10,20));
+    // TODO:
+    assert(false);
   }
 }
 
@@ -156,8 +194,10 @@ int main ()
     TEST(TestVectorBasic);
     TEST(TestVectorAngle);
     TEST(TestVectorSetAngleRadians);
-    TEST(TestVectorLength);
-    TEST(TestVectorSetLength);
+    TEST(TestVectorMagnitude);
+    TEST(TestVectorSetMagnitude);
+    TEST(TestPoint);
+    TEST(TestMovingThing);
   }
 
   std::cout << "Tests passed!" << std::endl;
