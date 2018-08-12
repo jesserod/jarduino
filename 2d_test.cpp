@@ -174,11 +174,23 @@ void TestPoint() {
   }
 }
 
-void TestMovingThing() {
+void TestMobileThing() {
   {
-    MovingThing m(Velocity(1,2), PointF(10,20));
-    // TODO:
-    assert(false);
+    MobileThing m(Velocity(1,2), PointF(10,20));
+    EXPECT_OBJECT_EQ(m.Velocity(), Velocity(1,2));
+    EXPECT_OBJECT_EQ(m.Pos(), PointF(10,20));
+    
+    m.Move(1.0);
+    EXPECT_OBJECT_EQ(m.Velocity(), Velocity(1,2));
+    EXPECT_OBJECT_EQ(m.Pos(), PointF(11,22));
+
+    m.Move(0.5);
+    EXPECT_OBJECT_EQ(m.Velocity(), Velocity(1,2));
+    EXPECT_OBJECT_EQ(m.Pos(), PointF(11.5,23));
+
+    m.Move(-1);
+    EXPECT_OBJECT_EQ(m.Velocity(), Velocity(1,2));
+    EXPECT_OBJECT_EQ(m.Pos(), PointF(10.5,21));
   }
 }
 
@@ -197,7 +209,7 @@ int main ()
     TEST(TestVectorMagnitude);
     TEST(TestVectorSetMagnitude);
     TEST(TestPoint);
-    TEST(TestMovingThing);
+    TEST(TestMobileThing);
   }
 
   std::cout << "Tests passed!" << std::endl;
