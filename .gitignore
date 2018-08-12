@@ -1,4 +1,4 @@
 .*.swp
-.*.exe
-.*dump
+*.exe
+*dump
 .history
