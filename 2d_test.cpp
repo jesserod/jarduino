@@ -194,7 +194,7 @@ void TestMobileThing() {
   }
 }
 
-void TestBox() {
+void TestBoxBasic() {
   {
     Box<float> b;
     EXPECT_OBJECT_EQ(b, Box<float>(PointF(0, 0), PointF(0, 0)));
@@ -216,6 +216,26 @@ void TestBox() {
   }
 }
 
+void TestBoxContains() {
+  {
+    Box<float> b(PointF(1,2), PointF(4, 6));
+    EXPECT_EQ(b.ContainsPoint(Point<int>(1,2)), true);
+    EXPECT_EQ(b.ContainsPoint(Point<int>(4,6)), true);
+    EXPECT_EQ(b.ContainsPoint(Point<int>(1,6)), true);
+    EXPECT_EQ(b.ContainsPoint(Point<int>(4,2)), true);
+    EXPECT_EQ(b.ContainsPoint(Point<int>(1,3)), true);
+    EXPECT_EQ(b.ContainsPoint(Point<int>(2,3)), true);
+    EXPECT_EQ(b.ContainsPoint(Point<int>(-2,3)), false);
+    EXPECT_EQ(b.ContainsPoint(Point<int>(2,-3)), false);
+    EXPECT_EQ(b.ContainsPoint(Point<int>(-2,-3)), false);
+
+    EXPECT_EQ(b.ContainsPoint(Point<float>(1, 6)), true);
+    EXPECT_EQ(b.ContainsPoint(Point<float>(1.01, 5.99)), true);
+    EXPECT_EQ(b.ContainsPoint(Point<float>(0.99, 5.99)), false);
+    EXPECT_EQ(b.ContainsPoint(Point<float>(1.5, 6.01)), false);
+  }
+}
+
 }  // namespace jarduino
 
 
@@ -232,7 +252,8 @@ int main ()
     TEST(TestVectorSetMagnitude);
     TEST(TestPoint);
     TEST(TestMobileThing);
-    TEST(TestBox);
+    TEST(TestBoxBasic);
+    TEST(TestBoxContains);
   }
 
   std::cout << "Tests passed!" << std::endl;

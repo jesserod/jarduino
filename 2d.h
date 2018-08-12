@@ -154,6 +154,14 @@ class Box {
 
    bool operator!=(const Box<T>& other) const { return !(*this == other); }
 
+   template <typename T2>
+   bool ContainsPoint(const Point<T2>& point) const {
+     return point.X() >= LowerLeft().X() &&
+            point.Y() >= LowerLeft().Y() &&
+            point.X() <= UpperRight().X() &&
+            point.Y() <= UpperRight().Y();
+   }
+
  private:
    Point<T> p1_;
    Point<T> p2_;
