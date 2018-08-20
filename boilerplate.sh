@@ -37,7 +37,8 @@ Usage: $0 [Options]
 
 Options:
   -c, --class_name   CLASS_NAME
-  -v, --var          MEMBER_VARIABLE_NAME (repeatable)
+  -v, --var          MEMBER_VARIABLE (repeatable)
+                     e.g. "int foo" or "string* bar"
   -n, --namespace    NAMESPACE (repeatable)
 EOS
       exit ;;
@@ -216,7 +217,7 @@ void TestExample2() {
 
 $(BuildNamespaceCloses)
 
-int main ()
+int main()
 {
   $(BuildNamespaceUsing)
   TEST(TestExample1);
