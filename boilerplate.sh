@@ -3,7 +3,7 @@
 class_name=
 declare -a var_names
 declare -a var_types
-declare -a includes
+declare -a namespaces
 
 while [[ $# -gt 0 ]]
 do
@@ -11,23 +11,32 @@ key="$1"
 
 case $key in
     -c|--class_name)
-    class_name=$2
-    shift; shift ;;
+      class_name=$2
+      shift; shift; ;;
 
     -v|--var)
-    i=${#var_types[@]}
-    var_types[i]=$2
-    var_names[i]=$3
-    shift; shift; shift; ;;
+      i=${#var_types[@]}
+      var_types[i]=$2
+      var_names[i]=$3
+      shift; shift; shift; ;;
 
-    #-i|--include)
-    #i=${#includes[@]}
-    #includes[i]=$2
-    #shift; shift ;;
+    -n|--namespace)
+      i=${#namespaces[@]}
+      namespaces[i]=$2
+      shift; shift; ;;
 
     -*)
-    echo "Invalid flag: $1"
-    exit ;;
+      cat <<EOS
+Invalid flag: $1
+
+Usage: $0 [Options]
+
+Options:
+  -c, --class_name   CLASS_NAME
+  -v, --var          MEMBER_VARIABLE_NAME (repeatable)
+  -n, --namespace    NAMESPACE (repeatable)
+EOS
+      exit ;;
     *)
     break ;;
 esac
@@ -50,7 +59,7 @@ ToTitleCase() {
 }
 
 # Args: $1=i, $2="cpp" or empty
-Setter() {
+BuildSetter() {
   i=$1
   name=${var_names[$i]}
   T=${var_types[$i]}
@@ -64,8 +73,30 @@ Setter() {
   printf "${prefix}Set$(ToTitleCase $name)(const $T& $name)$body\n\n"
 }
 
+BuildNamespaceOpens() {
+  for (( i=0; i<${#namespaces[@]}; i++ )); do
+    echo "namespace ${namespaces[i]} {"
+  done
+}
+
+BuildNamespaceCloses() {
+  for (( i=0; i<${#namespaces[@]}; i++ )); do
+    echo "}  // namespace ${namespaces[i]}"
+  done
+}
+
+BuildNamespaceUsing() {
+  printf 'using namespace '
+  for (( i=0; i<${#namespaces[@]}; i++ )); do
+    [ $i -gt 0 ] && printf "::"
+    printf "${namespaces[i]}"
+  done
+  echo ";"
+}
+
+
 # Args: $1=i, $2="cpp" or empty
-Getter() {
+BuildGetter() {
   i=$1
   name=${var_names[$i]}
   T=${var_types[$i]}
@@ -80,7 +111,6 @@ Getter() {
 }
 
 
-
 BuildHeaderFile() {
   export CONSTRUCTOR_SIGNATURE_DEFAULT="$class_name()"
   export CONSTRUCTOR_SIGNATURE_ARGS="$class_name($(for (( i=0; i<$NUM_VARS; i++ )); do [ $i -gt 0 ] && echo -n ", "; echo -n "const ${var_types[$i]}& ${var_names[$i]}"; done))"
@@ -92,6 +122,8 @@ BuildHeaderFile() {
 
 #include <string>
 
+$(BuildNamespaceOpens)
+
 class $class_name {
  public:
   $CONSTRUCTOR_SIGNATURE_DEFAULT;
@@ -100,12 +132,13 @@ class $class_name {
 
   void $INIT_SIGNATURE;
 
-$(for (( i=0; i<$NUM_VARS; i++ )); do Getter $i; Setter $i; done)
+$(for (( i=0; i<$NUM_VARS; i++ )); do BuildGetter $i; BuildSetter $i; done)
 
  private:
 $(for (( i=0; i<$NUM_VARS; i++ )); do echo "  ${var_types[$i]} ${var_names[$i]}_;"; done)
 };
 
+$(BuildNamespaceCloses)
 #endif
 EOF
 }
@@ -117,6 +150,8 @@ BuildCppFile() {
   # Start of file
   cat <<EOF
 #include "$HEADER_SRC_NAME"
+
+$(BuildNamespaceOpens)
 
 $class_name::$CONSTRUCTOR_SIGNATURE_DEFAULT {
   // TODO
@@ -130,7 +165,9 @@ void $class_name::$INIT_SIGNATURE {
 $INIT_BODY
 }
 
-$(for (( i=0; i<$NUM_VARS; i++ )); do Getter $i cpp; Setter $i cpp; done)
+$(for (( i=0; i<$NUM_VARS; i++ )); do BuildGetter $i cpp; BuildSetter $i cpp; done)
+
+$(BuildNamespaceCloses)
 EOF
 }
 
@@ -142,6 +179,8 @@ BuildTestFile() {
 #include "$HEADER_SRC_NAME"
 #include "test_helpers.h"
 
+$(BuildNamespaceOpens)
+
 void TestExample1() {
   EXPECT_FLOAT_EQ(1.0, 1.00000001);
 }
@@ -150,9 +189,11 @@ void TestExample2() {
   EXPECT_GT(2.0, 1);
 }
 
+$(BuildNamespaceCloses)
+
 int main ()
 {
-  // using namespace jarduino;
+  $(BuildNamespaceUsing)
   TEST(TestExample1);
   TEST(TestExample2);
 
