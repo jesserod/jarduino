@@ -2,6 +2,8 @@
 #define __TEST_HELPERS_H__
 
 #include <iostream>
+#include <math.h>
+#include <assert.h>
 
 #define TEST(x) {std::cout << "Running test "#x << std::endl; x(); }
 #define FLOAT_EQ(a, b) (fabs(float(a) - float(b)) < 1e-5)

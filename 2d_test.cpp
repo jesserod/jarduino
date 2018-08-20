@@ -1,6 +1,4 @@
 #include <iostream>
-#include <math.h>       /* atan2 */
-#include <assert.h>
 
 #include "2d.h"
 #include "test_helpers.h"
