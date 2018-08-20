@@ -1,12 +1,5 @@
 #!/bin/bash
 
-#PrintArray() {
-  #for (( i=0; i<${tLen}; i++ ));
-  #do
-    #echo ${NAMESERVERS[$i]}
-  #done
-#}
-
 class_name=
 declare -a var_names
 declare -a var_types
@@ -42,13 +35,45 @@ Lowercase() {
   echo $1 | tr '[A-Z]' '[a-z]'
 }
 
-TitleCaseToUnderscore() {
+ToUnderscored() {
   echo "$1" | sed -e 's/^\(.\)/\L\1/g' | sed -r 's/([a-z0-9])([A-Z])/\1_\L\2/g'
 }
 
-UnderscoreToTitleCase() {
+ToTitleCase() {
   echo "$1" | sed -r 's/(^|_)([a-z])/\U\2/g'  
 }
+
+# Args: $1=i, $2="cpp" or empty
+Setter() {
+  i=$1
+  name=${var_names[$i]}
+  T=${var_types[$i]}
+  if [[ $2 == "cpp" ]]; then
+    prefix="void $class_name::"
+    body=" {\n  ${name}_ = $name;\n}"
+  else
+    prefix="  void "
+    body=";"
+  fi
+  printf "${prefix}Set$(ToTitleCase $name)(const $T& $name)$body\n\n"
+}
+
+# Args: $1=i, $2="cpp" or empty
+Getter() {
+  i=$1
+  name=${var_names[$i]}
+  T=${var_types[$i]}
+  if [[ $2 == "cpp" ]]; then
+    prefix="$T $class_name::"
+    body=" {\n  return ${name}_;\n}"
+  else
+    prefix="  $T "
+    body=";"
+  fi
+  printf "${prefix}$(ToTitleCase $name)()$body\n\n"
+}
+
+
 
 BuildHeaderFile() {
   export HEADER_FILE_NAME="$class_name_underscore.h"
@@ -62,11 +87,13 @@ BuildHeaderFile() {
 
 class $class_name {
  public:
-   $CONSTRUCTOR_SIGNATURE_DEFAULT;
+  $CONSTRUCTOR_SIGNATURE_DEFAULT;
 
-   $CONSTRUCTOR_SIGNATURE_ARGS;
+  $CONSTRUCTOR_SIGNATURE_ARGS;
 
-   void $INIT_SIGNATURE;
+  void $INIT_SIGNATURE;
+
+$(for (( i=0; i<$NUM_VARS; i++ )); do Getter $i; Setter $i; done)
 
  private:
 $(for (( i=0; i<$NUM_VARS; i++ )); do echo "  ${var_types[$i]} ${var_names[$i]}_;"; done)
@@ -82,7 +109,7 @@ BuildCppFile() {
 
   # Start of file
   cat <<EOF
-#include $HEADER_FILE_NAME
+#include "$HEADER_FILE_NAME"
 
 $class_name::$CONSTRUCTOR_SIGNATURE_DEFAULT {
   // TODO
@@ -95,6 +122,8 @@ $CONSTRUCTOR_ARGS_BODY
 void $class_name::$INIT_SIGNATURE {
 $INIT_BODY
 }
+
+$(for (( i=0; i<$NUM_VARS; i++ )); do Getter $i cpp; Setter $i cpp; done)
 EOF
 
 }
@@ -102,8 +131,8 @@ EOF
 
 ######################################
 
-class_name=$(UnderscoreToTitleCase "$class_name")
-class_name_underscore=$(TitleCaseToUnderscore "$class_name")
+class_name=$(ToTitleCase "$class_name")
+class_name_underscore=$(ToUnderscored "$class_name")
 echo "Class name: $class_name"
 NUM_VARS=${#var_types[@]}
 for (( i=0; i<${NUM_VARS}; i++ ));
