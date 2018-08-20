@@ -11,9 +11,9 @@ class Grid {
  public:
   Grid() { Init(0, 0); }
 
-  Grid(int h, int w) { Init(h, w); };
+  Grid(int w, int h) { Init(w, h); };
 
-  void Init(int h, int w) {
+  void Init(int w, int h) {
     height_ = h;
     width_ = w;
     // Sanity check
