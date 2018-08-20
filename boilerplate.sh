@@ -133,7 +133,7 @@ BuildGetter() {
     prefix="  $T "
     body=";"
   fi
-  printf "${prefix}$(ToTitleCase $name)()$body\n\n"
+  printf "${prefix}$(ToTitleCase $name)() const$body\n\n"
 }
 
 

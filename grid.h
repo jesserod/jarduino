@@ -18,18 +18,18 @@ class Grid {
     width_ = w;
     // Sanity check
     assert(h * w < 10000);
-    data = (T*) malloc(h * w * sizeof(T));
+    data = (T*) calloc(h * w, sizeof(T));
   }
 
   ~Grid() {
     free(data);
   }
 
-  int Width() { return width_; }
+  int Width() const { return width_; }
 
-  int Height() { return height_; }
+  int Height() const { return height_; }
 
-  T* Get(int x, int y) {
+  T* Get(int x, int y) const {
     assert(x >= 0 && x < Width());
     assert(y >= 0 && y < Height());
     return &data[x + y * Width()];
