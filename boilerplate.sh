@@ -25,6 +25,10 @@ case $key in
       namespaces[i]=$2
       shift; shift; ;;
 
+    -r|--remove)
+      REMOVE=true
+      shift; ;;
+
     -*)
       cat <<EOS
 Invalid flag: $1
@@ -41,6 +45,27 @@ EOS
     break ;;
 esac
 done
+
+RemoveFiles() {
+  FILES=($HEADER_SRC_NAME  $CPP_SRC_NAME $TEST_SRC_NAME  $TEST_BINARY_NAME $RUN_TEST_SCRIPT)
+  echo "OK to delete these files?"
+  for (( i=0; i<${#FILES[@]}; i++ )); do
+    printf "  ${FILES[i]}\n"
+  done
+  select yn in "Yes" "No"; do
+    case $yn in
+        Yes ) 
+          for (( i=0; i<${#FILES[@]}; i++ )); do
+            rm "${FILES[i]}"
+            printf "Deleted ${FILES[i]}\n"
+          done
+          break ;;
+        * ) 
+          echo "Not going to do anything"
+          break ;;
+    esac
+  done
+}
 
 Uppercase() {
   echo $1 | tr '[a-z]' '[A-Z]'
@@ -220,18 +245,27 @@ EOF
 
 class_name=$(ToTitleCase "$class_name")
 class_name_underscore=$(ToUnderscored "$class_name")
-echo "Class name: $class_name"
-NUM_VARS=${#var_types[@]}
-for (( i=0; i<${NUM_VARS}; i++ ));
-do
-  echo "Variable: ${var_types[$i]} : ${var_names[$i]}"
-done
 
 HEADER_SRC_NAME="$class_name_underscore.h"
 CPP_SRC_NAME="$class_name_underscore.cpp"
 TEST_SRC_NAME="${class_name_underscore}_test.cpp"
 TEST_BINARY_NAME="${class_name_underscore}_test"
 RUN_TEST_SCRIPT="run_${class_name_underscore}_test.sh"
+
+if [[ $REMOVE != "" ]]; then
+  RemoveFiles
+  exit
+fi
+
+echo "Creating files for class $class_name"
+NUM_VARS=${#var_types[@]}
+echo "With variables:"
+for (( i=0; i<${NUM_VARS}; i++ ));
+do
+  echo "  Variable ${var_types[$i]} : ${var_names[$i]}"
+done
+
+
 echo "HEADER ==============================="
 BuildHeaderFile 
 BuildHeaderFile > $HEADER_SRC_NAME
