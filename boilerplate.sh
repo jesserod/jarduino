@@ -3,6 +3,7 @@
 class_name=
 declare -a var_names
 declare -a var_types
+declare -a includes
 
 while [[ $# -gt 0 ]]
 do
@@ -18,6 +19,11 @@ case $key in
     var_types[i]=$2
     var_names[i]=$3
     shift; shift; shift; ;;
+
+    #-i|--include)
+    #i=${#includes[@]}
+    #includes[i]=$2
+    #shift; shift ;;
 
     -*)
     echo "Invalid flag: $1"
@@ -76,7 +82,6 @@ Getter() {
 
 
 BuildHeaderFile() {
-  export HEADER_FILE_NAME="$class_name_underscore.h"
   export CONSTRUCTOR_SIGNATURE_DEFAULT="$class_name()"
   export CONSTRUCTOR_SIGNATURE_ARGS="$class_name($(for (( i=0; i<$NUM_VARS; i++ )); do [ $i -gt 0 ] && echo -n ", "; echo -n "const ${var_types[$i]}& ${var_names[$i]}"; done))"
   export INIT_SIGNATURE="Init($(for (( i=0; i<$NUM_VARS; i++ )); do [ $i -gt 0 ] && echo -n ", "; echo -n "const ${var_types[$i]}& ${var_names[$i]}"; done))"
@@ -84,6 +89,8 @@ BuildHeaderFile() {
   cat <<EOF
 #ifndef __$(Uppercase $class_name_underscore)_H__
 #define __$(Uppercase $class_name_underscore)_H__
+
+#include <string>
 
 class $class_name {
  public:
@@ -109,7 +116,7 @@ BuildCppFile() {
 
   # Start of file
   cat <<EOF
-#include "$HEADER_FILE_NAME"
+#include "$HEADER_SRC_NAME"
 
 $class_name::$CONSTRUCTOR_SIGNATURE_DEFAULT {
   // TODO
@@ -125,7 +132,46 @@ $INIT_BODY
 
 $(for (( i=0; i<$NUM_VARS; i++ )); do Getter $i cpp; Setter $i cpp; done)
 EOF
+}
 
+
+BuildTestFile() {
+  cat <<EOF
+#include <iostream>
+
+#include "$HEADER_SRC_NAME"
+#include "test_helpers.h"
+
+void TestExample1() {
+  EXPECT_FLOAT_EQ(1.0, 1.00000001);
+}
+
+void TestExample2() {
+  EXPECT_GT(2.0, 1);
+}
+
+int main ()
+{
+  // using namespace jarduino;
+  TEST(TestExample1);
+  TEST(TestExample2);
+
+  std::cout << "Tests passed!" << std::endl;
+  return 0;
+}
+
+EOF
+}
+
+BuildRunTestScript() {
+  cat <<EOF
+#!/bin/bash
+
+g++.exe \\
+  $CPP_SRC_NAME\\
+  $TEST_SRC_NAME\\
+  -o $TEST_BINARY_NAME && ./$TEST_BINARY_NAME
+EOF
 }
 
 
@@ -140,7 +186,24 @@ do
   echo "Variable: ${var_types[$i]} : ${var_names[$i]}"
 done
 
+HEADER_SRC_NAME="$class_name_underscore.h"
+CPP_SRC_NAME="$class_name_underscore.cpp"
+TEST_SRC_NAME="${class_name_underscore}_test.cpp"
+TEST_BINARY_NAME="${class_name_underscore}_test"
+RUN_TEST_SCRIPT="run_${class_name_underscore}_test.sh"
 echo "HEADER ==============================="
 BuildHeaderFile 
+BuildHeaderFile > $HEADER_SRC_NAME
+echo
 echo "CPP ==============================="
-BuildCppFile
+BuildCppFile 
+BuildCppFile > $CPP_SRC_NAME
+echo "TEST ==============================="
+echo
+BuildTestFile
+BuildTestFile > $TEST_SRC_NAME
+echo "RUN_SCRIPT ==============================="
+echo
+BuildRunTestScript
+BuildRunTestScript > $RUN_TEST_SCRIPT
+chmod +x $RUN_TEST_SCRIPT
