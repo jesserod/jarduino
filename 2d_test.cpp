@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "2d.h"
+#include "point.h"
 #include "test_helpers.h"
 
 #define PI 3.14159265
@@ -142,35 +143,6 @@ void TestVectorSetMagnitude() {
   }
 }
 
-void TestPoint() {
-  {
-    Point<int> p;
-    EXPECT_EQ(p.X(), 0);
-    EXPECT_EQ(p.Y(), 0);
-  }
-  {
-    Point<int> p(1, 2);
-    EXPECT_EQ(p.X(), 1);
-    EXPECT_EQ(p.Y(), 2);
-  }
-  {
-    Point<int> p;
-    p.SetX(10);
-    EXPECT_EQ(p.X(), 10);
-    EXPECT_EQ(p.Y(), 0);
-  }
-  {
-    Point<int> p;
-    p.SetY(10);
-    EXPECT_EQ(p.X(), 0);
-    EXPECT_EQ(p.Y(), 10);
-  }
-  {
-    Point<float> p(1.5, -2);
-    EXPECT_FLOAT_EQ(p.X(), 1.5);
-    EXPECT_FLOAT_EQ(p.Y(), -2);
-  }
-}
 
 void TestMobileThing() {
   {
@@ -248,7 +220,6 @@ int main ()
     TEST(TestVectorSetAngleRadians);
     TEST(TestVectorMagnitude);
     TEST(TestVectorSetMagnitude);
-    TEST(TestPoint);
     TEST(TestMobileThing);
     TEST(TestBoxBasic);
     TEST(TestBoxContains);

@@ -36,7 +36,7 @@ Invalid flag: $1
 Usage: $0 [Options]
 
 Options:
-  -c, --class_name   CLASS_NAME
+  -c, --class_name   CLASS_NAME (required)
   -v, --var          MEMBER_VARIABLE (repeatable)
                      e.g. "int foo" or "string* bar"
   -n, --namespace    NAMESPACE (repeatable)
@@ -46,6 +46,11 @@ EOS
     break ;;
 esac
 done
+
+if [[ $class_name == "" ]]; then
+  echo "-c/--class_name is required."
+  exit 1
+fi
 
 RemoveFiles() {
   FILES=($HEADER_SRC_NAME  $CPP_SRC_NAME $TEST_SRC_NAME  $TEST_BINARY_NAME $RUN_TEST_SCRIPT)
