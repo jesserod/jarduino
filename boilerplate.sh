@@ -239,7 +239,7 @@ BuildRunTestScript() {
   cat <<EOF
 #!/bin/bash
 
-g++.exe \\
+g++ \\
   $CPP_SRC_NAME\\
   $TEST_SRC_NAME\\
   -o $TEST_BINARY_NAME && ./$TEST_BINARY_NAME
