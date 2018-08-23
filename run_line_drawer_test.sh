@@ -1,6 +1,10 @@
 #!/bin/bash
 
 g++.exe \
-  line_drawer.cpp\
   line_drawer_test.cpp\
+  point.cpp\
+  line_drawer.cpp\
   -o line_drawer_test && ./line_drawer_test
+
+#  line_drawer.cpp\
+# grid_printer.cpp\

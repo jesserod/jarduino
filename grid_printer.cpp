@@ -2,5 +2,4 @@
 
 namespace jarduino {
 
-
 }  // namespace jarduino

@@ -19,6 +19,17 @@ class GridPrinter {
       cout << endl;
     }
   }
+
+  template <typename T>
+  static void Print(const Grid<T>& grid) {
+    using namespace std;
+    for (int y = grid.Height() - 1;  y >= 0; --y) {
+      for (int x = 0; x < grid.Width(); ++x) {
+        cout << ((char)(*grid.Get(x, y)));
+      }
+      cout << endl;
+    }
+  }
 };
 
 }  // namespace jarduino

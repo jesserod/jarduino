@@ -3,14 +3,15 @@
 
 #include <string>
 #include "point.h"
+#include "array.h"
 
 namespace jarduino {
 
 class LineDrawer {
  public:
-  static Draw(const Grid<T>& grid, char (*to_char_func)(const T&)) {
-    using namespace std;
-  }
+  // Returns array of points that should be displayed
+  // as being a part of this line.
+  static Array<PointI> Draw(const PointI& start, const PointI& end);
 };
 
 }  // namespace jarduino

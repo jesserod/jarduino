@@ -11,7 +11,13 @@ class Grid {
  public:
   Grid() { Init(0, 0); }
 
-  Grid(int w, int h) { Init(w, h); };
+  Grid(int w, int h) {
+    Init(w, h);
+  };
+
+  Grid(int w, int h, const T& default_value) {
+    Init(w, h, default_value);
+  };
 
   void Init(int w, int h) {
     height_ = h;
@@ -20,6 +26,14 @@ class Grid {
     assert(h * w < 10000);
     data = (T*) calloc(h * w, sizeof(T));
   }
+  
+  void Init(int w, int h, const T& default_value) {
+    Init(w, h);
+    for (int i = 0; i < w * h; ++i) {
+      data[i] = default_value;
+    }
+  };
+
 
   ~Grid() {
     free(data);
