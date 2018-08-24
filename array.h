@@ -3,15 +3,6 @@
 
 #include <string>
 #include <assert.h>
-// TODO: DO NOT SUBMIT
-// TODO: DO NOT SUBMIT
-// TODO: DO NOT SUBMIT
-// TODO: DO NOT SUBMIT
-// TODO: DO NOT SUBMIT
-// TODO: DO NOT SUBMIT
-// TODO: DO NOT SUBMIT
-#include <iostream>
-using namespace std;
 
 namespace jarduino {
 
@@ -31,7 +22,6 @@ class Array {
   }
 
   void Init(const int& size) {
-    cerr << "initting to " << size << endl;
     size_ = 0;  // Prevent Resize() from cleaning up when we haven't allocated yet.
     Resize(size);
   }
@@ -48,7 +38,6 @@ class Array {
   int Size() const { return size_; }
 
   T& Get(int i) const {
-    // std::cerr << "Get " << i << " of " << Size() << std::endl;
     assert(i >= 0 && i < Size()); 
     return array_[i];
   }
@@ -59,7 +48,6 @@ class Array {
   }
 
   T* Resize(const int& new_size) {
-    cerr << "resizing to " << new_size << endl;
     assert(new_size >= 0);
     if (new_size <= size_) {
       size_ = new_size;
@@ -81,7 +69,6 @@ class Array {
 
   void Cleanup() {
     if (size_ > 0) {
-      cerr << "deleting old" << endl;
       delete [] array_;
     }
   }
