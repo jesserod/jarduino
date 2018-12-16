@@ -1,7 +1,6 @@
 #ifndef __ARRAY_H__
 #define __ARRAY_H__
 
-#include <string>
 #include <assert.h>
 
 namespace jarduino {
@@ -29,7 +28,7 @@ class Array {
   Array& operator= (const Array& other) {
     size_ = other.size_;
     array_ = other.array_;
-    other.size_ = 0;  // Prevent other's destructor from de-allocating.
+    other.size_ = 0;  // Prevent Resize() from cleaning up when we haven't allocated yet.
     return *this;
   }
 
@@ -57,7 +56,7 @@ class Array {
     for (int i = 0; i < size_; ++i) {
       new_arr[i] = array_[i];
     }
-    Cleanup();
+    Cleanup();  // Remove old array 
     size_ = new_size;
     array_ = new_arr;
     return array_;
