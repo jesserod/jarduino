@@ -1,8 +1,6 @@
 #ifndef __POINT_H__
 #define __POINT_H__
 
-#include <string>
-
 namespace jarduino {
 
 template <typename T>
