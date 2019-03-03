@@ -257,7 +257,7 @@ class Box {
   }
 
   bool operator==(const Box<T>& other) const {
-    LowerLeft() == other.LowerLeft() && UpperRight() == other.UpperRight();
+    return LowerLeft() == other.LowerLeft() && UpperRight() == other.UpperRight();
   }
 
   bool operator!=(const Box<T>& other) const { return !(*this == other); }
