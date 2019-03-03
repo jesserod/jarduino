@@ -10,6 +10,8 @@
 
 namespace jarduino {
 
+namespace {
+
 template <typename T>
 T min(const T& a, const T& b) {
   return (a < b) ? a : b;
@@ -19,6 +21,8 @@ template <typename T>
 T max(const T& a, const T& b) {
   return (a > b) ? a : b;
 }
+
+}  // namespace
 
 float ToDegrees(float radians);
 
@@ -157,11 +161,6 @@ class Line {
 
   bool operator!=(const Line<T>& other) const { return !(*this == other); }
 
-  template <typename T2>
-  bool Intersects(const Line<T2>& other, Point<float>* at /* nullable */) const {
-    // TODO
-  }
-
  private:
   Point<T> a_;
   Point<T> b_;
@@ -270,15 +269,31 @@ class Box {
            point.Y() <= UpperRight().Y();
   }
 
-  template <typename T2>
-  bool IntersectsLine(const Point<T2>& a, const Point<T2>& b) const {
-
-  }
-
  private:
   Point<T> p1_;
   Point<T> p2_;
 };
+
+namespace geometry {
+
+template <typename T1, typename T2>
+bool LineIntersectsLine(const Line<T1>& line1, const Line<T2>& line2, Point<float>* at /* nullable */) {
+  // TODO
+}
+
+template <typename LineType, typename BoxType>
+bool LineIntersectsBox(const Line<LineType>& line, const Box<BoxType>& box) {
+}
+
+template <typename BoxType, typename PointType>
+bool BoxContainsPoint(const Box<BoxType>& box, const Point<PointType>& point) {
+  return point.X() >= box.LowerLeft().X() &&
+         point.Y() >= box.LowerLeft().Y() &&
+         point.X() <= box.UpperRight().X() &&
+         point.Y() <= box.UpperRight().Y();
+}
+
+}
 
 }  // namespace jarduino
 #endif
