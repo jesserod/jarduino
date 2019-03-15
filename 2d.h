@@ -164,71 +164,6 @@ class Line {
  private:
   Point<T> a_;
   Point<T> b_;
-
-  /*
-
-// Given three colinear points p, q, r, the function checks if
-// point q lies on line segment 'pr'
-static bool onSegment(Point p, Point q, Point r)
-{
-    if (q.X() <= max(p.X(), r.X()) && q.X() >= min(p.X(), r.X()) &&
-        q.Y() <= max(p.Y(), r.Y()) && q.Y() >= min(p.Y(), r.Y()))
-       return true;
- 
-    return false;
-}
- 
-// To find orientation of ordered triplet (p, q, r).
-// The function returns following values
-// 0 --> p, q and r are colinear
-// 1 --> Clockwise
-// 2 --> Counterclockwise
-static int orientation(PointF p, PointF q, PointF r)
-{
-    // See https://www.geeksforgeeks.org/orientation-3-ordered-points/
-    // for details of below formula.
-    int val = (q.Y() - p.Y()) * (r.X() - q.X()) -
-              (q.X() - p.X()) * (r.Y() - q.Y());
- 
-    if (val == 0) return 0;  // colinear
- 
-    return (val > 0)? 1: 2; // clock or counterclock wise
-}
- 
-// The main function that returns true if line segment 'p1q1'
-// and 'p2q2' intersect.
-static bool doIntersect(PointF p1, PointF q1, PointF p2, PointF q2)
-{
-    // Find the four orientations needed for general and
-    // special cases
-    int o1 = orientation(p1, q1, p2);
-    int o2 = orientation(p1, q1, q2);
-    int o3 = orientation(p2, q2, p1);
-    int o4 = orientation(p2, q2, q1);
- 
-    // General case
-    if (o1 != o2 && o3 != o4)
-        return true;
- 
-    // Special Cases
-    // p1, q1 and p2 are colinear and p2 lies on segment p1q1
-    if (o1 == 0 && onSegment(p1, p2, q1)) return true; // At p2
- 
-    // p1, q1 and q2 are colinear and q2 lies on segment p1q1
-    if (o2 == 0 && onSegment(p1, q2, q1)) return true; // at Q2
- 
-    // p2, q2 and p1 are colinear and p1 lies on segment p2q2
-    if (o3 == 0 && onSegment(p2, p1, q2)) return true; // at P1
- 
-     // p2, q2 and q1 are colinear and q1 lies on segment p2q2
-    if (o4 == 0 && onSegment(p2, q1, q2)) return true; // At q1
- 
-    return false; // Doesn't fall in any of the above cases
-}
-
-*/
-  
-
 };
 
 template <typename T>
@@ -276,9 +211,77 @@ class Box {
 
 namespace geometry {
 
+namespace {
+
+// Given three colinear points p, q, r, the function checks if
+// point q lies on line segment 'pr'
+static bool onSegment(PointF p, PointF q, PointF r)
+{
+    if (q.X() <= max(p.X(), r.X()) && q.X() >= min(p.X(), r.X()) &&
+        q.Y() <= max(p.Y(), r.Y()) && q.Y() >= min(p.Y(), r.Y()))
+       return true;
+ 
+    return false;
+}
+ 
+// To find orientation of ordered triplet (p, q, r).
+// The function returns following values
+// 0 --> p, q and r are colinear
+// 1 --> Clockwise
+// 2 --> Counterclockwise
+static int orientation(PointF p, PointF q, PointF r)
+{
+    // See https://www.geeksforgeeks.org/orientation-3-ordered-points/
+    // for details of below formula.
+    float val = (q.Y() - p.Y()) * (r.X() - q.X()) -
+                (q.X() - p.X()) * (r.Y() - q.Y());
+ 
+    const float kEpsilon = 0.00001;
+    if (fabs(val) <= kEpsilon) return 0;  // colinear
+ 
+    return (val > 0)? 1: 2; // clock or counterclock wise
+}
+
+
+// TODO:  Move into CPP
+
+// The main function that returns true if line segment 'p1q1'
+// and 'p2q2' intersect.
+static bool doIntersect(PointF p1, PointF q1, PointF p2, PointF q2)
+{
+    // Find the four orientations needed for general and
+    // special cases
+    int o1 = orientation(p1, q1, p2);
+    int o2 = orientation(p1, q1, q2);
+    int o3 = orientation(p2, q2, p1);
+    int o4 = orientation(p2, q2, q1);
+ 
+    // General case
+    if (o1 != o2 && o3 != o4)
+        return true;
+ 
+    // Special Cases
+    // p1, q1 and p2 are colinear and p2 lies on segment p1q1
+    if (o1 == 0 && onSegment(p1, p2, q1)) return true; // At p2
+ 
+    // p1, q1 and q2 are colinear and q2 lies on segment p1q1
+    if (o2 == 0 && onSegment(p1, q2, q1)) return true; // at Q2
+ 
+    // p2, q2 and p1 are colinear and p1 lies on segment p2q2
+    if (o3 == 0 && onSegment(p2, p1, q2)) return true; // at P1
+ 
+     // p2, q2 and q1 are colinear and q1 lies on segment p2q2
+    if (o4 == 0 && onSegment(p2, q1, q2)) return true; // At q1
+ 
+    return false; // Doesn't fall in any of the above cases
+}
+
+}  // namespace
+
 template <typename T1, typename T2>
 bool LineIntersectsLine(const Line<T1>& line1, const Line<T2>& line2, Point<float>* at /* nullable */) {
-  // TODO
+  // TODO:  Determine where they intersect
+  return doIntersect(line1.A(), line1.B(), line2.A(), line2.B());
 }
 
 template <typename LineType, typename BoxType>
@@ -293,7 +296,7 @@ bool BoxContainsPoint(const Box<BoxType>& box, const Point<PointType>& point) {
          point.Y() <= box.UpperRight().Y();
 }
 
-}
+}  // namespace geometry
 
 }  // namespace jarduino
 #endif
